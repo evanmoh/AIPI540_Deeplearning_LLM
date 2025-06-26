@@ -111,14 +111,21 @@ st.markdown("""
         font-size: 16px;
         padding: 16px 20px;
         border-radius: 24px;
-        border: 2px solid #E5E5E7;
-        background-color: #FAFAFA;
+        border: 2px solid #4A90E2;
+        background-color: #FFFFFF;
         color: #2F2F2F;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     
     .stTextInput > div > div > input:focus {
         border-color: #2E86AB;
-        box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
+        box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.2);
+        outline: none;
+    }
+    
+    .stTextInput > div > div > input::placeholder {
+        color: #888;
+        font-style: italic;
     }
     
     .example-queries {
@@ -131,19 +138,23 @@ st.markdown("""
     
     .example-button {
         margin: 5px;
-        padding: 8px 16px;
+        padding: 12px 20px;
         background-color: white;
-        border: 1px solid #D1D5DB;
-        border-radius: 20px;
-        color: #374151;
+        border: 2px solid #4A90E2;
+        border-radius: 25px;
+        color: #2F2F2F;
         font-size: 14px;
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .example-button:hover {
-        background-color: #F3F4F6;
-        border-color: #2E86AB;
+        background-color: #4A90E2;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
     
     .welcome-section {
@@ -631,13 +642,17 @@ def main_chat_interface():
                 st.session_state.agents = agents
                 st.session_state.agents_loaded = True
     
-    # Simple model selection - no performance info on main page
+    # Simple model selection - better visibility
+    st.markdown('<div class="model-selector">', unsafe_allow_html=True)
+    st.markdown("**🤖 Choose your AI assistant:**")
     selected_model = st.selectbox(
-        "Choose your AI assistant:",
+        "",
         options=['Deep Learning Agent', 'Classical ML Agent', 'Naive Agent'],
         index=0,
-        help="Select the AI model for your pharmaceutical analysis"
+        help="Select the AI model for your pharmaceutical analysis",
+        label_visibility="collapsed"
     )
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Model mapping
     model_mapping = {
@@ -665,49 +680,66 @@ def main_chat_interface():
     
     # Handle example query
     user_input = ""
-    if 'example_query' in st.session_state:
+    if 'example_query' in st.session_state and 'last_example' not in st.session_state:
         user_input = st.session_state['example_query']
-        del st.session_state['example_query']
+        st.session_state['last_example'] = user_input  # Mark this example as used
     
-    # Chat input
+    # Chat input with better visibility
+    st.markdown("### 💬 Ask me anything about pharmaceutical intelligence:")
     if not user_input:
         user_input = st.text_input(
             "",
-            placeholder="Ask me anything about pharmaceutical markets, competitors, pipelines, or strategies...",
+            placeholder="Type your question here... (e.g., Tell me about Merck's oncology products)",
             key="user_input",
             label_visibility="collapsed"
         )
     
     # Process input
     if user_input and st.session_state.agents_loaded:
-        # Add user message
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        
-        # Get response
-        with st.spinner("Thinking..."):
-            try:
-                selected_agent_key = model_mapping[selected_model]
-                agent = st.session_state.agents[selected_agent_key]
-                
-                response = agent.answer_query(user_input)
-                
-                # Add response
-                st.session_state.messages.append({
-                    "role": "assistant", 
-                    "content": response,
-                    "model": selected_model
-                })
-                
-                st.rerun()
-                
-            except Exception as e:
-                st.error(f"Error: {e}")
+        # Check if this is the same as the last input to prevent duplicates
+        if (not st.session_state.messages or 
+            st.session_state.messages[-1]["role"] != "user" or 
+            st.session_state.messages[-1]["content"] != user_input):
+            
+            # Add user message
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            
+            # Get response
+            with st.spinner("Thinking..."):
+                try:
+                    selected_agent_key = model_mapping[selected_model]
+                    agent = st.session_state.agents[selected_agent_key]
+                    
+                    response = agent.answer_query(user_input)
+                    
+                    # Add response
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": response,
+                        "model": selected_model
+                    })
+                    
+                    # Clear the input by resetting the session state
+                    if 'example_query' in st.session_state:
+                        del st.session_state['example_query']
+                    if 'last_example' in st.session_state:
+                        del st.session_state['last_example']
+                    
+                    st.rerun()
+                    
+                except Exception as e:
+                    st.error(f"Error: {e}")
     
     # Clear button
     if st.session_state.messages:
         st.markdown('<div class="clear-button">', unsafe_allow_html=True)
         if st.button("🗑️ Clear conversation", type="secondary"):
             st.session_state.messages = []
+            # Also clear any pending queries
+            if 'example_query' in st.session_state:
+                del st.session_state['example_query']
+            if 'last_example' in st.session_state:
+                del st.session_state['last_example']
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
