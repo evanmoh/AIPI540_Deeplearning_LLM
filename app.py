@@ -232,7 +232,24 @@ def load_pharmaceutical_agents():
             def answer_query(self, query):
                 query_lower = query.lower()
                 
-                if 'launch' in query_lower and 'oncology' in query_lower:
+                if 'merck' in query_lower and 'oncology' in query_lower:
+                    return """Merck's Key Oncology Products:
+
+• Keytruda (pembrolizumab) - PD-1 inhibitor
+  Main uses: Lung cancer, melanoma, bladder cancer
+  Revenue: ~$20B annually
+
+• Lynparza (olaparib) - PARP inhibitor  
+  Main uses: Ovarian, breast, prostate cancers
+  Partnership with AstraZeneca
+
+• Lenvima (lenvatinib) - Multi-kinase inhibitor
+  Main uses: Thyroid, liver, kidney cancers
+  Partnership with Eisai
+
+Basic analysis available."""
+                
+                elif 'launch' in query_lower and 'oncology' in query_lower:
                     return """Upcoming oncology launches in 2025:
 • Dato-DXd (Daiichi Sankyo/AstraZeneca) - HER2+ breast cancer
 • Capivasertib (AstraZeneca) - PIK3CA/AKT pathway cancers
@@ -249,7 +266,7 @@ Basic analysis available."""
                     return """AstraZeneca is a leading pharmaceutical company with strong oncology portfolio including Tagrisso and Lynparza."""
                 
                 else:
-                    return f"Basic pharmaceutical analysis for: {query}\n\nLimited detail available with naive approach."
+                    return f"I can help with pharmaceutical analysis. Try asking about specific companies like Merck, AstraZeneca, market opportunities, or competitive landscapes."
         
         class AdvancedClassicalMLAgent:
             def __init__(self, database):
@@ -258,7 +275,38 @@ Basic analysis available."""
             def answer_query(self, query):
                 query_lower = query.lower()
                 
-                if 'launch' in query_lower and 'oncology' in query_lower:
+                if 'merck' in query_lower and 'oncology' in query_lower:
+                    return """📊 MERCK ONCOLOGY PORTFOLIO ANALYSIS
+==========================================
+
+🎯 FLAGSHIP PRODUCTS:
+
+• Keytruda (pembrolizumab) - PD-1 Inhibitor
+  Indications: NSCLC, melanoma, head & neck, bladder
+  2023 Revenue: $25.0B (Merck's top seller)
+  Growth: Expanding into adjuvant settings
+
+• Lynparza (olaparib) - PARP Inhibitor
+  Indications: Ovarian, breast, prostate cancers
+  Partnership: Co-developed with AstraZeneca
+  Focus: BRCA-mutated tumors
+
+• Lenvima (lenvatinib) - Multi-kinase Inhibitor
+  Indications: Thyroid, liver, endometrial cancers
+  Partnership: Co-developed with Eisai
+  Position: Second-line liver cancer standard
+
+📈 STRATEGIC POSITION:
+• Market leader in immuno-oncology
+• Strong combination therapy pipeline
+• Focus on biomarker-driven precision medicine
+
+💡 COMPETITIVE ADVANTAGES:
+• Keytruda's broad label expansion
+• Strong clinical development capabilities
+• Strategic partnership approach"""
+                
+                elif 'launch' in query_lower and 'oncology' in query_lower:
                     return """📊 ONCOLOGY PIPELINE ANALYSIS
 ==================================================
 
@@ -338,12 +386,14 @@ Key Challenges: Resistance mechanisms, high costs"""
                     return f"""📈 PHARMACEUTICAL INTELLIGENCE
 =============================
 
-Query: {query}
+I can help you analyze:
+• Company portfolios (Merck, AstraZeneca, etc.)
+• Market opportunities and sizing
+• Competitive landscapes
+• Pipeline assessments
+• Strategic recommendations
 
-• Comprehensive market analysis available
-• Multi-source data integration
-• Strategic insights provided
-• Enhanced analytical capabilities"""
+Please ask about specific companies, markets, or therapeutic areas."""
         
         class SophisticatedDeepLearningAgent:
             def __init__(self, database):
@@ -581,19 +631,17 @@ def main_chat_interface():
                 st.session_state.agents = agents
                 st.session_state.agents_loaded = True
     
-    # Simple model selection
-    st.markdown('<div class="model-selector">', unsafe_allow_html=True)
+    # Simple model selection - no performance info on main page
     selected_model = st.selectbox(
         "Choose your AI assistant:",
-        options=['Deep Learning Agent (Recommended)', 'Classical ML Agent', 'Naive Agent'],
+        options=['Deep Learning Agent', 'Classical ML Agent', 'Naive Agent'],
         index=0,
         help="Select the AI model for your pharmaceutical analysis"
     )
-    st.markdown('</div>', unsafe_allow_html=True)
     
     # Model mapping
     model_mapping = {
-        'Deep Learning Agent (Recommended)': 'deep_agent',
+        'Deep Learning Agent': 'deep_agent',
         'Classical ML Agent': 'classical_agent', 
         'Naive Agent': 'naive_agent'
     }
@@ -610,7 +658,7 @@ def main_chat_interface():
         if message["role"] == "user":
             st.markdown(f'<div class="user-message"><strong>You:</strong> {message["content"]}</div>', unsafe_allow_html=True)
         else:
-            model_name = message["model"].replace(' (Recommended)', '')
+            model_name = message["model"]
             st.markdown(f'<div class="assistant-message"><strong>{model_name}:</strong><br><pre>{message["content"]}</pre></div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
@@ -743,35 +791,17 @@ def evaluation_metrics_page():
 def main():
     """Main application"""
     
-    # Sidebar
+    # Sidebar with minimal info
     st.sidebar.title("🧭 Navigation")
     page = st.sidebar.selectbox(
         "Select Page:",
-        ["💬 Chat", "📊 Evaluation Results"]
+        ["💬 Chat", "📊 Model Performance"]
     )
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### About IndicaAI")
-    st.sidebar.markdown("""
-    Advanced pharmaceutical intelligence platform with three AI models:
-    
-    **🥇 Deep Learning Agent** (65.4%)
-    - Industry-leading capabilities
-    - Best for complex analysis
-    
-    **🥈 Classical ML Agent** (56.5%)  
-    - Strong business intelligence
-    - Great for competitive research
-    
-    **🥉 Naive Agent** (40.9%)
-    - Quick market lookups
-    - Basic pharmaceutical queries
-    """)
     
     # Route to pages
     if page == "💬 Chat":
         main_chat_interface()
-    elif page == "📊 Evaluation Results":
+    elif page == "📊 Model Performance":
         evaluation_metrics_page()
 
 if __name__ == "__main__":
