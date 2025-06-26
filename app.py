@@ -192,6 +192,10 @@ if 'agents' not in st.session_state:
     st.session_state.agents = None
 if 'example_query' not in st.session_state:
     st.session_state.example_query = None
+if 'last_processed_query' not in st.session_state:
+    st.session_state.last_processed_query = ""
+if 'processing' not in st.session_state:
+    st.session_state.processing = False
 
 # Load pharmaceutical agents
 @st.cache_resource
@@ -697,30 +701,41 @@ def main_chat_interface():
         new_question = st.session_state['example_query']
         st.session_state['example_query'] = None  # Clear immediately to prevent re-processing
     
-    # Process new question
-    if new_question and st.session_state.agents_loaded:
-        # Add user message
-        st.session_state.messages.append({"role": "user", "content": new_question})
-        
-        # Get response
-        with st.spinner("Thinking..."):
-            try:
-                selected_agent_key = model_mapping[selected_model]
-                agent = st.session_state.agents[selected_agent_key]
-                
-                response = agent.answer_query(new_question)
-                
-                # Add response
-                st.session_state.messages.append({
-                    "role": "assistant", 
-                    "content": response,
-                    "model": selected_model
-                })
-                
-                st.rerun()
-                
-            except Exception as e:
-                st.error(f"Error: {e}")
+    # Process new question - with strict duplicate prevention
+    if new_question and st.session_state.agents_loaded and not st.session_state.processing:
+        # Check if this exact question was just processed
+        if new_question != st.session_state.last_processed_query:
+            
+            # Set processing flag to prevent concurrent processing
+            st.session_state.processing = True
+            st.session_state.last_processed_query = new_question
+            
+            # Add user message
+            st.session_state.messages.append({"role": "user", "content": new_question})
+            
+            # Get response
+            with st.spinner("Thinking..."):
+                try:
+                    selected_agent_key = model_mapping[selected_model]
+                    agent = st.session_state.agents[selected_agent_key]
+                    
+                    response = agent.answer_query(new_question)
+                    
+                    # Add response
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": response,
+                        "model": selected_model
+                    })
+                    
+                    # Clear processing flag
+                    st.session_state.processing = False
+                    
+                    st.rerun()
+                    
+                except Exception as e:
+                    st.session_state.processing = False
+                    st.error(f"Error: {e}")
     
     # Action buttons
     if st.session_state.messages:
@@ -729,6 +744,8 @@ def main_chat_interface():
         with col1:
             if st.button("🏠 New Chat", type="primary"):
                 st.session_state.messages = []
+                st.session_state.last_processed_query = ""
+                st.session_state.processing = False
                 if 'example_query' in st.session_state:
                     st.session_state['example_query'] = None
                 st.rerun()
@@ -736,6 +753,8 @@ def main_chat_interface():
         with col2:
             if st.button("🗑️ Clear All", type="secondary"):
                 st.session_state.messages = []
+                st.session_state.last_processed_query = ""
+                st.session_state.processing = False
                 if 'example_query' in st.session_state:
                     st.session_state['example_query'] = None
                 st.rerun()
