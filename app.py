@@ -190,6 +190,8 @@ if 'agents_loaded' not in st.session_state:
     st.session_state.agents_loaded = False
 if 'agents' not in st.session_state:
     st.session_state.agents = None
+if 'example_query' not in st.session_state:
+    st.session_state.example_query = None
 
 # Load pharmaceutical agents
 @st.cache_resource
@@ -619,6 +621,7 @@ def show_example_queries():
         with cols[i % 2]:
             if st.button(f"💬 {example}", key=f"example_{i}", use_container_width=True):
                 st.session_state['example_query'] = example
+                st.rerun()
     
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -678,70 +681,67 @@ def main_chat_interface():
     
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Handle example query
-    user_input = ""
-    if 'example_query' in st.session_state and 'last_example' not in st.session_state:
-        user_input = st.session_state['example_query']
-        st.session_state['last_example'] = user_input  # Mark this example as used
-    
-    # Chat input with better visibility
+    # Chat input section - always visible
     st.markdown("### 💬 Ask me anything about pharmaceutical intelligence:")
-    if not user_input:
-        user_input = st.text_input(
-            "",
-            placeholder="Type your question here... (e.g., Tell me about Merck's oncology products)",
-            key="user_input",
-            label_visibility="collapsed"
-        )
     
-    # Process input
-    if user_input and st.session_state.agents_loaded:
-        # Check if this is the same as the last input to prevent duplicates
-        if (not st.session_state.messages or 
-            st.session_state.messages[-1]["role"] != "user" or 
-            st.session_state.messages[-1]["content"] != user_input):
-            
-            # Add user message
-            st.session_state.messages.append({"role": "user", "content": user_input})
-            
-            # Get response
-            with st.spinner("Thinking..."):
-                try:
-                    selected_agent_key = model_mapping[selected_model]
-                    agent = st.session_state.agents[selected_agent_key]
-                    
-                    response = agent.answer_query(user_input)
-                    
-                    # Add response
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": response,
-                        "model": selected_model
-                    })
-                    
-                    # Clear the input by resetting the session state
-                    if 'example_query' in st.session_state:
-                        del st.session_state['example_query']
-                    if 'last_example' in st.session_state:
-                        del st.session_state['last_example']
-                    
-                    st.rerun()
-                    
-                except Exception as e:
-                    st.error(f"Error: {e}")
+    # New question input
+    new_question = st.text_input(
+        "",
+        placeholder="Type your question here... (e.g., Tell me about Merck's oncology products)",
+        key="new_question_input",
+        label_visibility="collapsed"
+    )
     
-    # Clear button
+    # Handle example query selection
+    if 'example_query' in st.session_state and st.session_state.example_query:
+        new_question = st.session_state['example_query']
+        st.session_state['example_query'] = None  # Clear immediately to prevent re-processing
+    
+    # Process new question
+    if new_question and st.session_state.agents_loaded:
+        # Add user message
+        st.session_state.messages.append({"role": "user", "content": new_question})
+        
+        # Get response
+        with st.spinner("Thinking..."):
+            try:
+                selected_agent_key = model_mapping[selected_model]
+                agent = st.session_state.agents[selected_agent_key]
+                
+                response = agent.answer_query(new_question)
+                
+                # Add response
+                st.session_state.messages.append({
+                    "role": "assistant", 
+                    "content": response,
+                    "model": selected_model
+                })
+                
+                st.rerun()
+                
+            except Exception as e:
+                st.error(f"Error: {e}")
+    
+    # Action buttons
     if st.session_state.messages:
-        st.markdown('<div class="clear-button">', unsafe_allow_html=True)
-        if st.button("🗑️ Clear conversation", type="secondary"):
-            st.session_state.messages = []
-            # Also clear any pending queries
-            if 'example_query' in st.session_state:
-                del st.session_state['example_query']
-            if 'last_example' in st.session_state:
-                del st.session_state['last_example']
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 1, 1])
+        
+        with col1:
+            if st.button("🏠 New Chat", type="primary"):
+                st.session_state.messages = []
+                if 'example_query' in st.session_state:
+                    st.session_state['example_query'] = None
+                st.rerun()
+        
+        with col2:
+            if st.button("🗑️ Clear All", type="secondary"):
+                st.session_state.messages = []
+                if 'example_query' in st.session_state:
+                    st.session_state['example_query'] = None
+                st.rerun()
+        
+        with col3:
+            st.write("")  # Placeholder for spacing
 
 def evaluation_metrics_page():
     """Evaluation metrics page (moved from main interface)"""
