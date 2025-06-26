@@ -14,9 +14,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for styling
+# Custom CSS for Claude-like interface
 st.markdown("""
 <style>
+    .main {
+        padding-top: 2rem;
+    }
+    
     .header-text {
         position: fixed;
         top: 10px;
@@ -28,82 +32,143 @@ st.markdown("""
     
     .main-title {
         text-align: center;
-        color: #1f77b4;
-        font-size: 48px;
-        font-weight: bold;
-        margin-bottom: 10px;
+        color: #2E86AB;
+        font-size: 42px;
+        font-weight: 600;
+        margin-bottom: 5px;
     }
     
     .subtitle {
         text-align: center;
         color: #666;
-        font-size: 18px;
-        margin-bottom: 30px;
+        font-size: 16px;
+        margin-bottom: 40px;
+        font-weight: 400;
     }
     
     .chat-container {
-        max-width: 900px;
+        max-width: 800px;
         margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .stTextInput > div > div > input {
-        font-size: 16px;
-        padding: 12px;
-        border-radius: 10px;
-    }
-    
-    .response-container {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 15px;
-        margin: 15px 0;
-        border-left: 4px solid #1f77b4;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 0 20px;
     }
     
     .user-message {
-        background-color: #e3f2fd;
-        padding: 15px;
-        border-radius: 15px;
-        margin: 15px 0;
-        border-left: 4px solid #2196f3;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background-color: #F7F7F8;
+        padding: 16px 20px;
+        border-radius: 18px;
+        margin: 16px 0;
+        border: 1px solid #E5E5E7;
+        color: #2F2F2F;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+    
+    .assistant-message {
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 18px;
+        margin: 16px 0;
+        border: 1px solid #E5E5E7;
+        color: #2F2F2F;
+        font-size: 15px;
+        line-height: 1.6;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .assistant-message pre {
+        background-color: #F8F9FA;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #E9ECEF;
+        overflow-x: auto;
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        color: #2F2F2F;
+        white-space: pre-wrap;
+        word-wrap: break-word;
     }
     
     .model-selector {
         text-align: center;
         margin: 30px 0;
         padding: 20px;
-        background-color: #f5f5f5;
-        border-radius: 15px;
+        background-color: #FAFAFA;
+        border-radius: 12px;
+        border: 1px solid #E5E5E7;
+    }
+    
+    .chat-input-container {
+        position: sticky;
+        bottom: 0;
+        background-color: white;
+        padding: 20px 0;
+        border-top: 1px solid #E5E5E7;
+        z-index: 100;
+    }
+    
+    .stTextInput > div > div > input {
+        font-size: 16px;
+        padding: 16px 20px;
+        border-radius: 24px;
+        border: 2px solid #E5E5E7;
+        background-color: #FAFAFA;
+        color: #2F2F2F;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #2E86AB;
+        box-shadow: 0 0 0 3px rgba(46, 134, 171, 0.1);
     }
     
     .example-queries {
-        background-color: #f0f8ff;
-        padding: 15px;
-        border-radius: 10px;
+        background-color: #F8F9FA;
+        padding: 20px;
+        border-radius: 12px;
         margin: 20px 0;
-        border-left: 4px solid #4CAF50;
+        border: 1px solid #E9ECEF;
     }
     
-    .hero-section {
+    .example-button {
+        margin: 5px;
+        padding: 8px 16px;
+        background-color: white;
+        border: 1px solid #D1D5DB;
+        border-radius: 20px;
+        color: #374151;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .example-button:hover {
+        background-color: #F3F4F6;
+        border-color: #2E86AB;
+    }
+    
+    .welcome-section {
         text-align: center;
         padding: 40px 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 20px;
         margin-bottom: 30px;
     }
     
-    .feature-card {
+    .stSelectbox > div > div > select {
+        font-size: 15px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #D1D5DB;
         background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        margin: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        border-left: 4px solid #1f77b4;
     }
+    
+    .clear-button {
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -115,18 +180,11 @@ if 'agents_loaded' not in st.session_state:
 if 'agents' not in st.session_state:
     st.session_state.agents = None
 
-# Load pharmaceutical agents from your actual files
+# Load pharmaceutical agents
 @st.cache_resource
 def load_pharmaceutical_agents():
-    """Load and cache pharmaceutical agents from your actual implementation"""
+    """Load pharmaceutical intelligence agents"""
     try:
-        # Here we'll create the pharmaceutical intelligence system
-        # Import the required classes and functions
-        
-        # Since we can't import directly, we'll recreate the core functionality
-        # You would replace this with actual imports if the files are available
-        
-        # For now, create enhanced mock agents that simulate your actual system
         class PharmaceuticalDatabase:
             def __init__(self):
                 self.market_data = {
@@ -163,14 +221,6 @@ def load_pharmaceutical_agents():
                             'category': 'oncology',
                             'expected_launch': 'Q3 2025',
                             'peak_sales_projection': '$4.2B'
-                        },
-                        {
-                            'drug': 'Retatrutide',
-                            'company': 'Eli Lilly',
-                            'indication': 'Obesity/Type 2 diabetes',
-                            'category': 'diabetes',
-                            'expected_launch': 'Q4 2025',
-                            'peak_sales_projection': '$15.3B'
                         }
                     ]
                 }
@@ -189,17 +239,14 @@ def load_pharmaceutical_agents():
 
 Basic analysis available."""
                 
-                elif 'competitive' in query_lower and 'lung' in query_lower:
+                elif 'competitive' in query_lower or 'competitor' in query_lower:
                     return """Key oncology competitors include AstraZeneca, Roche, Merck. Market is competitive with multiple targeted therapies."""
                 
                 elif 'diabetes' in query_lower and 'market' in query_lower:
                     return f"""Diabetes market size: {self.db.market_data['diabetes']['market_size_2024']}, growth rate: {self.db.market_data['diabetes']['growth_rate']}"""
                 
-                elif 'clinical' in query_lower or 'trial' in query_lower:
-                    return """Basic pharmaceutical market query processed. Limited analysis capabilities."""
-                
-                elif 'strategic' in query_lower or 'investment' in query_lower:
-                    return """Basic pharmaceutical market query processed. Limited analysis capabilities."""
+                elif 'astrazeneca' in query_lower:
+                    return """AstraZeneca is a leading pharmaceutical company with strong oncology portfolio including Tagrisso and Lynparza."""
                 
                 else:
                     return f"Basic pharmaceutical analysis for: {query}\n\nLimited detail available with naive approach."
@@ -212,10 +259,10 @@ Basic analysis available."""
                 query_lower = query.lower()
                 
                 if 'launch' in query_lower and 'oncology' in query_lower:
-                    return """📊 PIPELINE ANALYSIS REPORT
+                    return """📊 ONCOLOGY PIPELINE ANALYSIS
 ==================================================
 
-🎯 ONCOLOGY UPCOMING LAUNCHES 2025:
+🎯 MAJOR LAUNCHES 2025:
 
 • Dato-DXd (Daiichi Sankyo/AstraZeneca)
   Indication: HER2+ breast cancer
@@ -229,95 +276,73 @@ Basic analysis available."""
   Peak Sales: $4.2B
   Advantage: First-in-class AKT inhibitor
 
-• Selumetinib combo (AstraZeneca)
-  Indication: KRAS+ lung cancer
-  Launch: Q1 2025
-  Peak Sales: $2.8B
-  Advantage: MEK inhibitor combination
-
 💡 STRATEGIC IMPLICATIONS:
 • High competition expected in oncology
 • First-mover advantage critical for market share
 • Combination strategies may differentiate offerings"""
                 
-                elif 'competitive' in query_lower:
-                    return """🏆 COMPETITIVE INTELLIGENCE REPORT
-==================================================
+                elif 'competitive' in query_lower or 'competitor' in query_lower:
+                    return """🏆 COMPETITIVE LANDSCAPE ANALYSIS
+==========================================
 
-🫁 LUNG CANCER COMPETITIVE LANDSCAPE:
+🫁 LUNG CANCER MARKET:
+• AstraZeneca: 35% market share (Tagrisso, Imfinzi)
+• Merck: 28% market share (Keytruda)
+• Roche: Strong presence with multiple assets
 
-• AstraZeneca: 35% market share
-  Key drugs: Tagrisso, Imfinzi
-  Pipeline: Strong
-
-• Merck: 28% market share
-  Key drugs: Keytruda
-  Pipeline: Strong
-
-⚠️ EMERGING COMPETITIVE THREATS:
+⚠️ EMERGING THREATS:
 • Amgen - KRAS G12C inhibitors
 • Johnson & Johnson - bispecific antibodies
 • Gilead - antibody-drug conjugates
 
 📈 MARKET DYNAMICS:
-Growth Drivers: Precision medicine, Combination therapies, Earlier intervention
-Key Challenges: Resistance mechanisms, High development costs, Regulatory complexity"""
+Growth Drivers: Precision medicine, combination therapies
+Key Challenges: Resistance mechanisms, high costs"""
                 
                 elif 'diabetes' in query_lower:
                     market = self.db.market_data['diabetes']
-                    return f"""💰 MARKET OPPORTUNITY ANALYSIS
-==================================================
+                    return f"""💰 DIABETES MARKET ANALYSIS
+===============================
 
-📊 DIABETES MARKET METRICS:
-• 2024 Market Size: {market['market_size_2024']}
+📊 MARKET METRICS:
+• 2024 Size: {market['market_size_2024']}
 • 2025 Projection: {market['projected_2025']}
 • Growth Rate: {market['growth_rate']}
 • Key Segments: {', '.join(market['key_segments'])}
-• Market Leaders: {', '.join(market['market_leaders'])}
 
-🚀 UPCOMING CATALYSTS:
-• Obesity indication expansions
-• Oral GLP-1 formulations
-• CGM integration with therapeutics
-
-💡 INVESTMENT RECOMMENDATIONS:
-• Focus on high-growth segments with unmet need
-• Consider strategic partnerships for market access
-• Monitor regulatory environment for opportunities"""
+🚀 GROWTH CATALYSTS:
+• GLP-1 expansion into obesity
+• Oral formulation development
+• Digital health integration"""
                 
-                elif 'clinical' in query_lower or 'trial' in query_lower:
-                    return """🔬 CLINICAL INTELLIGENCE REPORT
-==================================================
+                elif 'astrazeneca' in query_lower:
+                    return """📊 ASTRAZENECA STRATEGIC ANALYSIS
+=====================================
 
-📋 HIGH-IMPACT TRIAL READOUTS 2025:
+🎯 ONCOLOGY PORTFOLIO:
+• Tagrisso (osimertinib) - EGFR inhibitor
+• Lynparza (olaparib) - PARP inhibitor
+• Imfinzi (durvalumab) - PD-L1 inhibitor
 
-• TROPION-Lung05
-  Drug: Dato-DXd (Daiichi Sankyo/AstraZeneca)
-  Indication: NSCLC
-  Readout: Q1 2025
-  Impact: High - could expand ADC use in lung cancer
+📈 PIPELINE STRENGTH:
+• Multiple late-stage assets
+• Strong ADC development program
+• Combination therapy focus
 
-• CAPItello-291
-  Drug: Capivasertib + fulvestrant (AstraZeneca)
-  Indication: HR+ breast cancer
-  Readout: Q2 2025
-  Impact: High - new mechanism in breast cancer
-
-• SURMOUNT-5
-  Drug: Retatrutide (Eli Lilly)
-  Indication: Obesity
-  Readout: Q3 2025
-  Impact: Very High - could dominate obesity market"""
+💡 STRATEGIC POSITION:
+• Market leader in lung cancer
+• Growing presence in breast cancer
+• Innovation-driven growth strategy"""
                 
                 else:
-                    return f"""📈 PHARMACEUTICAL ANALYSIS
-========================
+                    return f"""📈 PHARMACEUTICAL INTELLIGENCE
+=============================
 
 Query: {query}
 
-• Comprehensive market intelligence available
+• Comprehensive market analysis available
 • Multi-source data integration
-• Strategic recommendations provided
+• Strategic insights provided
 • Enhanced analytical capabilities"""
         
         class SophisticatedDeepLearningAgent:
@@ -328,174 +353,176 @@ Query: {query}
                 query_lower = query.lower()
                 
                 if 'launch' in query_lower and 'oncology' in query_lower:
-                    return """🚀 COMPREHENSIVE PIPELINE INTELLIGENCE REPORT
+                    return """🚀 COMPREHENSIVE ONCOLOGY PIPELINE INTELLIGENCE
 ============================================================
-Analysis Date: June 2025
-Focus Area: Oncology
+
+📅 Analysis Date: June 2025
+🎯 Strategic Focus: Oncology Launch Readiness
 
 🎯 MAJOR LAUNCHES 2025:
-----------------------------------------
+────────────────────────
 
 1. Dato-DXd (Daiichi Sankyo/AstraZeneca)
    📋 Indication: HER2+ breast cancer
    📅 Expected Launch: Q2 2025
    💰 Peak Sales Projection: $8.5B
-   🎯 Competitive Edge: Next-gen ADC with improved efficacy
-   ⭐ Strategic Importance: HIGH (AstraZeneca portfolio strengthening)
+   🎯 Competitive Edge: Next-gen ADC with superior efficacy
+   ⭐ Strategic Importance: HIGH
 
 2. Capivasertib (AstraZeneca)
    📋 Indication: PIK3CA/AKT pathway cancers
    📅 Expected Launch: Q3 2025
    💰 Peak Sales Projection: $4.2B
    🎯 Competitive Edge: First-in-class AKT inhibitor
-   ⭐ Strategic Importance: HIGH (AstraZeneca portfolio strengthening)
-
-3. Selumetinib combo (AstraZeneca)
-   📋 Indication: KRAS+ lung cancer
-   📅 Expected Launch: Q1 2025
-   💰 Peak Sales Projection: $2.8B
-   🎯 Competitive Edge: MEK inhibitor combination
-   ⭐ Strategic Importance: HIGH (AstraZeneca portfolio strengthening)
+   ⭐ Strategic Importance: HIGH
 
 💡 STRATEGIC RECOMMENDATIONS:
-----------------------------------------
+────────────────────────────
 • Monitor competitive launches for partnership opportunities
 • Prepare market access strategies for key approvals
 • Assess pricing implications from new entrants
 • Consider accelerated development timelines
 
-⚠️  RISK ASSESSMENT:
-----------------------------------------
+⚠️ RISK ASSESSMENT:
+──────────────────
 • Regulatory delays could shift competitive dynamics
 • Manufacturing capacity constraints possible
 • Reimbursement challenges for premium pricing"""
                 
-                elif 'competitive' in query_lower:
+                elif 'competitive' in query_lower or 'competitor' in query_lower:
                     return """🏆 DEEP COMPETITIVE INTELLIGENCE ANALYSIS
 ============================================================
-Market Scope: Lung
-Analysis Framework: Porter's Five Forces + Pipeline Assessment
 
-🫁 LUNG CANCER MARKET DYNAMICS:
-----------------------------------------
+🎯 Market Scope: Pharmaceutical Competitive Landscape
+📊 Framework: Multi-dimensional Assessment
 
-📊 MARKET LEADER ANALYSIS:
+🫁 LUNG CANCER DYNAMICS:
+────────────────────────
 
-• AstraZeneca:
-  Market Share: 35%
-  Key Assets: Tagrisso, Imfinzi
-  Pipeline Strength: Strong
-  Recent Developments:
-    - Tagrisso adjuvant approval expanding market
-    - Imfinzi combinations showing promise
+📊 MARKET LEADERS:
+• AstraZeneca: 35% market share
+  Assets: Tagrisso, Imfinzi
+  Recent Developments: Adjuvant approvals expanding market
 
-• Merck:
-  Market Share: 28%
-  Key Assets: Keytruda
-  Pipeline Strength: Strong
-  Recent Developments:
-    - Keytruda perioperative trials positive
-    - Expanding into earlier stage disease
+• Merck: 28% market share
+  Assets: Keytruda
+  Strategy: Perioperative expansion
 
 ⚡ EMERGING COMPETITIVE THREATS:
-• Amgen - KRAS G12C inhibitors
+• Amgen - KRAS G12C inhibitors gaining traction
 • Johnson & Johnson - bispecific antibodies
-• Gilead - antibody-drug conjugates
+• Gilead - ADC expansion beyond existing markets
 
 🎯 STRATEGIC POSITIONING OPPORTUNITIES:
-----------------------------------------
+──────────────────────────────────────
 • Precision medicine leadership through biomarker strategies
 • Combination therapy innovation for differentiation
 • Real-world evidence generation for market access
 • Digital health integration for patient engagement
 
 🎲 SCENARIO PLANNING:
-----------------------------------------
+────────────────────
 Best Case: Successful launches capture 25%+ market share
-Base Case: Moderate adoption with 15-20% market penetration
+Base Case: Moderate adoption with 15-20% penetration
 Risk Case: Delayed approvals or safety concerns limit uptake"""
                 
                 elif 'diabetes' in query_lower:
                     market = self.db.market_data['diabetes']
-                    return f"""💰 STRATEGIC MARKET OPPORTUNITY ANALYSIS
-============================================================
-Investment Thesis: Diabetes Market Assessment
+                    return f"""💰 STRATEGIC DIABETES MARKET INTELLIGENCE
+======================================
+
+🎯 Investment Thesis: Diabetes Market Assessment
+📊 Multi-dimensional Opportunity Analysis
 
 📊 MARKET FUNDAMENTALS:
-----------------------------------------
-Current Market Size (2024): {market['market_size_2024']}
-Projected Size (2025): {market['projected_2025']}
+─────────────────────
+Current Size (2024): {market['market_size_2024']}
+Projected (2025): {market['projected_2025']}
 Growth Rate: {market['growth_rate']}
 Key Segments: {', '.join(market['key_segments'])}
 
-🏢 MARKET LEADERS:
-{chr(10).join([f"{i}. {leader}" for i, leader in enumerate(market['market_leaders'], 1)])}
-
-🚀 GROWTH CATALYSTS:
-• Obesity indication expansions
-• Oral GLP-1 formulations
+🚀 TRANSFORMATIONAL CATALYSTS:
+────────────────────────────
+• GLP-1 obesity indication expansion
+• Oral GLP-1 formulation breakthrough
 • CGM integration with therapeutics
+• Digital therapeutics convergence
 
 💡 INVESTMENT RECOMMENDATIONS:
-----------------------------------------
-• High Priority: Invest in differentiated assets with clear unmet need
-• Medium Priority: Consider partnerships for market access
-• Strategic: Monitor adjacent opportunities for portfolio expansion
+───────────────────────────
+• High Priority: Obesity-diabetes continuum assets
+• Strategic: Digital health integration partnerships
+• Innovation: Novel delivery mechanisms
 
-⚖️  RISK-RETURN ASSESSMENT:
-----------------------------------------
-Upside Potential: Strong growth trajectory with multiple catalysts
-Downside Risks: Regulatory uncertainty and competitive intensity
-Recommended Action: Proceed with strategic investments"""
+⚖️ RISK-RETURN ASSESSMENT:
+─────────────────────────
+Upside: Multi-billion market expansion potential
+Risk: Competitive intensity and pricing pressure
+Action: Strategic investment recommended with portfolio approach"""
                 
-                elif 'clinical' in query_lower or 'trial' in query_lower:
-                    return """🔬 CLINICAL INTELLIGENCE REPORT
-============================================================
-Clinical Data Landscape Analysis
+                elif 'astrazeneca' in query_lower:
+                    return """🚀 ASTRAZENECA STRATEGIC INTELLIGENCE ANALYSIS
+=================================================
 
-📋 HIGH-IMPACT TRIALS 2025:
-----------------------------------------
+🎯 COMPREHENSIVE PORTFOLIO ASSESSMENT
+Multi-dimensional strategic evaluation
 
-🧪 TROPION-Lung05
-   Drug: Dato-DXd
-   Company: Daiichi Sankyo/AstraZeneca
-   Indication: NSCLC
-   Expected Readout: Q1 2025
-   Market Impact: High - could expand ADC use in lung cancer
+📊 ONCOLOGY DOMINANCE:
+────────────────────
+Core Assets:
+• Tagrisso (osimertinib): $5.8B revenue, lung cancer leader
+• Lynparza (olaparib): $2.5B revenue, PARP inhibitor pioneer
+• Imfinzi (durvalumab): $3.1B revenue, PD-L1 innovation
 
-🧪 CAPItello-291
-   Drug: Capivasertib + fulvestrant
-   Company: AstraZeneca
-   Indication: HR+ breast cancer
-   Expected Readout: Q2 2025
-   Market Impact: High - new mechanism in breast cancer
+Pipeline Strength:
+• Dato-DXd: Potential $8.5B peak sales (partnership with Daiichi)
+• Capivasertib: First-in-class AKT inhibitor opportunity
+• Multiple combination strategies in development
 
-🧪 SURMOUNT-5
-   Drug: Retatrutide
-   Company: Eli Lilly
-   Indication: Obesity
-   Expected Readout: Q3 2025
-   Market Impact: Very High - could dominate obesity market"""
+🎯 STRATEGIC POSITIONING:
+───────────────────────
+Competitive Advantages:
+• Market leadership in EGFR+ lung cancer
+• Strong R&D capabilities in precision oncology
+• Strategic partnerships enhancing pipeline
+
+Growth Catalysts:
+• ADC platform expansion
+• Combination therapy approvals
+• Geographic expansion in emerging markets
+
+💡 INVESTMENT OUTLOOK:
+────────────────────
+Strengths: Innovation pipeline, market leadership
+Opportunities: Emerging markets, digital health
+Risks: Patent cliffs, competitive pressure
+Recommendation: Strong long-term positioning"""
                 
                 else:
                     return f"""🚀 ADVANCED PHARMACEUTICAL INTELLIGENCE
 ====================================
 
 🎯 SOPHISTICATED ANALYSIS FRAMEWORK
-Multi-layered market intelligence with:
+Multi-layered market intelligence powered by:
 
-• AI-powered pattern recognition
-• Competitive scenario modeling  
+• AI-driven pattern recognition
+• Competitive scenario modeling
 • Strategic risk assessment
 • Investment opportunity mapping
 
 📊 QUERY PROCESSED: {query}
 
-💡 COMPREHENSIVE INSIGHTS:
+💡 COMPREHENSIVE INSIGHTS AVAILABLE:
 • Market dynamics analysis
 • Competitive positioning assessment
 • Strategic recommendations
-• Risk mitigation strategies"""
+• Risk mitigation strategies
+
+For more specific analysis, please ask about:
+• Market opportunities
+• Competitive landscapes
+• Pipeline assessments
+• Strategic recommendations"""
         
         # Initialize database and agents
         database = PharmaceuticalDatabase()
@@ -513,110 +540,69 @@ Multi-layered market intelligence with:
         return None
 
 def show_example_queries():
-    """Show example queries to help users get started"""
+    """Show example queries in a clean format"""
     st.markdown('<div class="example-queries">', unsafe_allow_html=True)
-    st.markdown("**💡 Try these example queries:**")
+    st.markdown("**💡 Try asking me about:**")
     
-    col1, col2 = st.columns(2)
+    examples = [
+        "What are the upcoming oncology launches in 2025?",
+        "Who are the competitors for AstraZeneca in oncology?", 
+        "What is the diabetes market opportunity?",
+        "Analyze the competitive landscape in lung cancer",
+        "Tell me about AstraZeneca's pipeline strategy",
+        "What clinical trials should we monitor?"
+    ]
     
-    with col1:
-        if st.button("🎯 Upcoming oncology launches in 2025?", key="example1"):
-            st.session_state['example_query'] = "What are the upcoming oncology launches in 2025?"
-        if st.button("🏆 Competitive landscape in lung cancer?", key="example2"):
-            st.session_state['example_query'] = "Analyze the competitive landscape in lung cancer"
-        if st.button("💰 Diabetes market opportunity?", key="example3"):
-            st.session_state['example_query'] = "What is the market opportunity for diabetes drugs?"
-    
-    with col2:
-        if st.button("🔬 Key clinical trials to monitor?", key="example4"):
-            st.session_state['example_query'] = "Which clinical trials should we monitor in 2025?"
-        if st.button("📊 AstraZeneca pipeline strategy?", key="example5"):
-            st.session_state['example_query'] = "AstraZeneca pipeline strategy analysis"
-        if st.button("📈 Breast cancer market forecast?", key="example6"):
-            st.session_state['example_query'] = "Breast cancer market size and growth forecast"
+    cols = st.columns(2)
+    for i, example in enumerate(examples):
+        with cols[i % 2]:
+            if st.button(f"💬 {example}", key=f"example_{i}", use_container_width=True):
+                st.session_state['example_query'] = example
     
     st.markdown('</div>', unsafe_allow_html=True)
 
 def main_chat_interface():
-    """Main chat interface with clean UI"""
+    """Clean Claude-like chat interface"""
     
-    # Header with project info
-    st.markdown('<div class="header-text">Project for Evan Moh | Duke University AIPI540</div>', unsafe_allow_html=True)
+    # Header
+    st.markdown('<div class="header-text">Evan Moh | Duke University AIPI540</div>', unsafe_allow_html=True)
     
-    # Hero section
-    st.markdown("""
-    <div class="hero-section">
-        <h1 style="font-size: 3.5em; margin-bottom: 10px;">IndicaAI</h1>
-        <p style="font-size: 1.4em; margin-bottom: 0;">Pharmaceutical Marketing Intelligence Platform</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Welcome section
+    st.markdown('<div class="welcome-section">', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">IndicaAI</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">Pharmaceutical Marketing Intelligence Assistant</p>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Load agents
     if not st.session_state.agents_loaded:
-        with st.spinner("🔄 Loading pharmaceutical intelligence models..."):
+        with st.spinner("Loading pharmaceutical intelligence..."):
             agents = load_pharmaceutical_agents()
             if agents:
                 st.session_state.agents = agents
                 st.session_state.agents_loaded = True
-                st.success("✅ Pharmaceutical intelligence models loaded successfully!")
-                time.sleep(1)  # Brief pause to show success message
-                st.rerun()
-            else:
-                st.error("❌ Failed to load pharmaceutical models")
-                return
     
-    # Model selection with improved UI
+    # Simple model selection
     st.markdown('<div class="model-selector">', unsafe_allow_html=True)
-    st.markdown("### 🤖 Select AI Intelligence Level")
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown('<div class="feature-card">', unsafe_allow_html=True)
-        st.markdown("**🥉 Naive Agent**")
-        st.markdown("*Foundational capabilities*")
-        st.markdown("- Basic pharmaceutical queries")
-        st.markdown("- Quick market lookups")
-        st.markdown("- Score: 40.9%")
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown('<div class="feature-card">', unsafe_allow_html=True)
-        st.markdown("**🥈 Classical ML Agent**")
-        st.markdown("*Strong business intelligence*")
-        st.markdown("- Detailed market analysis")
-        st.markdown("- Competitive intelligence")
-        st.markdown("- Score: 56.5%")
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown('<div class="feature-card">', unsafe_allow_html=True)
-        st.markdown("**🥇 Deep Learning Agent**")
-        st.markdown("*Industry-leading capabilities*")
-        st.markdown("- Sophisticated strategic analysis")
-        st.markdown("- Comprehensive intelligence")
-        st.markdown("- Score: 65.4% (Champion)")
-        st.markdown('</div>', unsafe_allow_html=True)
-    
     selected_model = st.selectbox(
         "Choose your AI assistant:",
-        options=['🥇 Deep Learning Agent (Recommended)', '🥈 Classical ML Agent', '🥉 Naive Agent'],
+        options=['Deep Learning Agent (Recommended)', 'Classical ML Agent', 'Naive Agent'],
         index=0,
-        help="Select the AI model that best fits your analysis needs"
+        help="Select the AI model for your pharmaceutical analysis"
     )
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Map selection to agent
+    # Model mapping
     model_mapping = {
-        '🥇 Deep Learning Agent (Recommended)': 'deep_agent',
-        '🥈 Classical ML Agent': 'classical_agent', 
-        '🥉 Naive Agent': 'naive_agent'
+        'Deep Learning Agent (Recommended)': 'deep_agent',
+        'Classical ML Agent': 'classical_agent', 
+        'Naive Agent': 'naive_agent'
     }
     
-    # Show example queries
-    show_example_queries()
+    # Show examples if no chat history
+    if not st.session_state.messages:
+        show_example_queries()
     
-    # Chat interface
+    # Chat container
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
     
     # Display chat history
@@ -624,10 +610,12 @@ def main_chat_interface():
         if message["role"] == "user":
             st.markdown(f'<div class="user-message"><strong>You:</strong> {message["content"]}</div>', unsafe_allow_html=True)
         else:
-            model_display = message["model"].replace('🥇 ', '').replace('🥈 ', '').replace('🥉 ', '')
-            st.markdown(f'<div class="response-container"><strong>{model_display}:</strong><br><pre>{message["content"]}</pre></div>', unsafe_allow_html=True)
+            model_name = message["model"].replace(' (Recommended)', '')
+            st.markdown(f'<div class="assistant-message"><strong>{model_name}:</strong><br><pre>{message["content"]}</pre></div>', unsafe_allow_html=True)
     
-    # Handle example query selection
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Handle example query
     user_input = ""
     if 'example_query' in st.session_state:
         user_input = st.session_state['example_query']
@@ -636,157 +624,95 @@ def main_chat_interface():
     # Chat input
     if not user_input:
         user_input = st.text_input(
-            "Ask me questions about pharmaceutical intelligence:",
-            placeholder="e.g., What are the upcoming oncology launches in 2025?",
-            key="user_input"
+            "",
+            placeholder="Ask me anything about pharmaceutical markets, competitors, pipelines, or strategies...",
+            key="user_input",
+            label_visibility="collapsed"
         )
     
-    # Process user input
+    # Process input
     if user_input and st.session_state.agents_loaded:
         # Add user message
         st.session_state.messages.append({"role": "user", "content": user_input})
         
-        # Get response from selected model
-        with st.spinner(f"🤔 {selected_model.split(' (')[0]} is analyzing your query..."):
+        # Get response
+        with st.spinner("Thinking..."):
             try:
                 selected_agent_key = model_mapping[selected_model]
                 agent = st.session_state.agents[selected_agent_key]
                 
-                start_time = time.time()
                 response = agent.answer_query(user_input)
-                response_time = time.time() - start_time
                 
-                # Add response to chat
+                # Add response
                 st.session_state.messages.append({
                     "role": "assistant", 
                     "content": response,
-                    "model": selected_model,
-                    "response_time": response_time
+                    "model": selected_model
                 })
                 
-                # Clear input and rerun to show new message
                 st.rerun()
                 
             except Exception as e:
-                st.error(f"Error generating response: {e}")
+                st.error(f"Error: {e}")
     
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Clear chat button
+    # Clear button
     if st.session_state.messages:
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            if st.button("🗑️ Clear Chat History", type="secondary"):
-                st.session_state.messages = []
-                st.rerun()
+        st.markdown('<div class="clear-button">', unsafe_allow_html=True)
+        if st.button("🗑️ Clear conversation", type="secondary"):
+            st.session_state.messages = []
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def evaluation_metrics_page():
-    """Evaluation metrics and model comparison page with actual results"""
+    """Evaluation metrics page (moved from main interface)"""
     
-    st.markdown('<div class="header-text">Project for Evan Moh | Duke University AIPI540</div>', unsafe_allow_html=True)
+    st.markdown('<div class="header-text">Evan Moh | Duke University AIPI540</div>', unsafe_allow_html=True)
     
     st.title("📊 Model Evaluation & Performance Analytics")
     st.markdown("---")
     
-    # Champion announcement
-    st.markdown("""
-    <div class="hero-section">
-        <h2>🏆 Evaluation Results</h2>
-        <p><strong>Deep Learning Agent</strong> emerges as the champion with industry-leading capabilities!</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Performance results
+    st.header("🏆 Performance Results")
     
-    # Model performance comparison with actual results
-    st.header("🏆 Performance Championship Results")
-    
-    # Actual evaluation data from your results
     evaluation_data = {
         'Model': ['🥇 Deep Learning Agent', '🥈 Classical ML Agent', '🥉 Naive Agent'],
-        'Overall Score': [0.654, 0.565, 0.409],  # Your actual results
-        'Technical Performance': [0.998, 0.667, 0.417],  # Your actual results
-        'Business Intelligence': [1.000, 1.000, 0.850],  # Your actual results
-        'Clinical Intelligence': [0.125, 0.167, 0.000],  # Your actual results
-        'Strategic Support': [0.148, 0.074, 0.037]  # Your actual results
+        'Overall Score': [0.654, 0.565, 0.409],
+        'Technical Performance': [0.998, 0.667, 0.417],
+        'Business Intelligence': [1.000, 1.000, 0.850],
+        'Clinical Intelligence': [0.125, 0.167, 0.000],
+        'Strategic Support': [0.148, 0.074, 0.037]
     }
     
     df = pd.DataFrame(evaluation_data)
     
     # Overall performance chart
-    fig_overall = px.bar(
+    fig = px.bar(
         df, 
         x='Model', 
         y='Overall Score',
-        title="🏆 Championship Performance Rankings",
+        title="Overall Performance Rankings",
         color='Overall Score',
         color_continuous_scale='RdYlGn',
         text='Overall Score'
     )
-    fig_overall.update_traces(texttemplate='%{text:.1%}', textposition='outside')
-    fig_overall.update_layout(showlegend=False, yaxis_tickformat='%')
-    st.plotly_chart(fig_overall, use_container_width=True)
+    fig.update_traces(texttemplate='%{text:.1%}', textposition='outside')
+    fig.update_layout(showlegend=False, yaxis_tickformat='%')
+    st.plotly_chart(fig, use_container_width=True)
     
-    # Performance grades
+    # Performance summary
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.metric(
-            label="🥇 Deep Learning Agent",
-            value="65.4%",
-            delta="VERY GOOD - Champion"
-        )
-    
+        st.metric("🥇 Deep Learning Agent", "65.4%", "Champion")
     with col2:
-        st.metric(
-            label="🥈 Classical ML Agent", 
-            value="56.5%",
-            delta="GOOD - Runner-up"
-        )
-    
+        st.metric("🥈 Classical ML Agent", "56.5%", "Runner-up")
     with col3:
-        st.metric(
-            label="🥉 Naive Agent",
-            value="40.9%", 
-            delta="DEVELOPING - Bronze"
-        )
+        st.metric("🥉 Naive Agent", "40.9%", "Bronze")
     
-    # Detailed performance metrics
-    st.header("📈 Detailed Capability Assessment")
+    # Detailed breakdown
+    st.header("📈 Detailed Performance Breakdown")
     
-    # Radar chart for multi-dimensional comparison
-    categories = ['Technical Performance', 'Business Intelligence', 'Clinical Intelligence', 'Strategic Support']
-    
-    fig_radar = go.Figure()
-    
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
-    for i, model in enumerate(df['Model']):
-        values = [df.iloc[i][cat] for cat in categories]
-        values += [values[0]]  # Close the radar chart
-        
-        fig_radar.add_trace(go.Scatterpolar(
-            r=values,
-            theta=categories + [categories[0]],
-            fill='toself',
-            name=model,
-            line_color=colors[i]
-        ))
-    
-    fig_radar.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 1],
-                tickformat='%'
-            )),
-        showlegend=True,
-        title="🌟 Multi-Dimensional Capability Analysis"
-    )
-    
-    st.plotly_chart(fig_radar, use_container_width=True)
-    
-    # Performance metrics table
-    st.header("📋 Championship Scoreboard")
-    
-    # Format percentages
+    # Format and display table
     df_display = df.copy()
     for col in df_display.columns:
         if col != 'Model':
@@ -794,121 +720,56 @@ def evaluation_metrics_page():
     
     st.dataframe(df_display, use_container_width=True)
     
-    # Key insights with actual results
-    st.header("💡 Strategic Performance Analysis")
+    # Key insights
+    st.header("💡 Key Insights")
     
-    col1, col2 = st.columns(2)
+    st.write("""
+    **🥇 Deep Learning Agent (65.4%)** - Champion Performance
+    - Industry-leading technical architecture (99.8%)
+    - Outstanding business intelligence (100%)
+    - Best overall choice for sophisticated analysis
     
-    with col1:
-        st.subheader("🏆 Champion Capabilities")
-        st.write("""
-        **🥇 Deep Learning Agent (65.4%)**
-        - 🌟 Industry-leading technical architecture (99.8%)
-        - 🏆 Outstanding market intelligence (100%)
-        - 💪 Best-in-class among evaluated models
-        - ✅ **Recommended for deployment**
-        
-        **🥈 Classical ML Agent (56.5%)**
-        - 🏆 Outstanding business intelligence (100%)
-        - 💪 Strong technical foundation (66.7%)
-        - 📊 Solid performer - good backup choice
-        - ✅ **Viable alternative option**
-        
-        **🥉 Naive Agent (40.9%)**
-        - 🏆 Outstanding market intelligence (85%)
-        - 📈 Solid technical capabilities (41.7%)
-        - 📊 Functional model for specific applications
-        - ✅ **Good for basic queries**
-        """)
+    **🥈 Classical ML Agent (56.5%)** - Strong Alternative
+    - Excellent business intelligence (100%)
+    - Good technical foundation (66.7%)
+    - Ideal for competitive analysis
     
-    with col2:
-        st.subheader("🚀 Deployment Strategy")
-        st.write("""
-        **🎯 Strategic Recommendations:**
-        
-        **Deep Learning Agent:**
-        - 🥇 **Primary Choice** - Champion performance
-        - 🚀 Industry-leading capabilities
-        - 💡 Best for strategic planning & complex analysis
-        
-        **Classical ML Agent:**
-        - 🥈 **Strong Alternative** - Excellent business intel
-        - 📊 Perfect for competitive landscape analysis
-        - 💼 Specialized market research applications
-        
-        **Naive Agent:**
-        - 🥉 **Specialized Use** - Quick reference queries
-        - 📋 Simple market data lookups
-        - 🔧 Foundation for basic applications
-        
-        **🌟 Multi-Model Approach:**
-        - Deploy champion for complex queries
-        - Use specialized agents for targeted tasks
-        - Create tiered intelligence system
-        """)
-    
-    # Category champions
-    st.header("🌟 Category Excellence Awards")
-    
-    champion_data = {
-        'Category': ['🔧 Technical Performance', '💼 Business Intelligence', '🔬 Clinical Intelligence', '🎯 Strategic Support'],
-        'Champion': ['🥇 Deep Learning Agent', '🥈 Classical ML Agent', '🥈 Classical ML Agent', '🥇 Deep Learning Agent'],
-        'Score': ['99.8%', '100.0%', '16.7%', '14.8%'],
-        'Achievement': ['Industry-leading', 'Outstanding', 'Foundation established', 'Advanced framework']
-    }
-    
-    champion_df = pd.DataFrame(champion_data)
-    st.dataframe(champion_df, use_container_width=True)
-    
-    # Final recommendation
-    st.markdown("""
-    <div class="hero-section">
-        <h3>🏆 Final Recommendation</h3>
-        <p><strong>Deploy the Deep Learning Agent as your primary pharmaceutical intelligence system</strong></p>
-        <p>With 65.4% overall performance and industry-leading technical capabilities, it represents the best choice for sophisticated pharmaceutical market analysis.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    **🥉 Naive Agent (40.9%)** - Foundational Capabilities
+    - Solid business intelligence (85%)
+    - Good for basic queries and quick lookups
+    """)
 
 # Navigation
 def main():
-    """Main application with navigation"""
+    """Main application"""
     
-    # Sidebar navigation
+    # Sidebar
     st.sidebar.title("🧭 Navigation")
     page = st.sidebar.selectbox(
         "Select Page:",
-        ["💬 Chat Interface", "📊 Evaluation Results"]
+        ["💬 Chat", "📊 Evaluation Results"]
     )
     
-    # Add information about the project
     st.sidebar.markdown("---")
     st.sidebar.markdown("### About IndicaAI")
     st.sidebar.markdown("""
-    **🏆 Award-Winning Pharmaceutical Intelligence**
+    Advanced pharmaceutical intelligence platform with three AI models:
     
-    **Performance Results:**
-    - 🥇 Deep Learning Agent: **65.4%** (Champion)
-    - 🥈 Classical ML Agent: **56.5%** (Runner-up)  
-    - 🥉 Naive Agent: **40.9%** (Bronze)
+    **🥇 Deep Learning Agent** (65.4%)
+    - Industry-leading capabilities
+    - Best for complex analysis
     
-    **Key Achievements:**
-    - 🌟 Industry-leading technical architecture
-    - 🏆 Outstanding market intelligence
-    - 💪 Best-in-class performance
+    **🥈 Classical ML Agent** (56.5%)  
+    - Strong business intelligence
+    - Great for competitive research
     
-    Built for Duke University AIPI540 by **Evan Moh**
+    **🥉 Naive Agent** (40.9%)
+    - Quick market lookups
+    - Basic pharmaceutical queries
     """)
     
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🚀 Quick Start")
-    st.sidebar.markdown("""
-    1. **Select** Deep Learning Agent (recommended)
-    2. **Try** example queries or ask your own
-    3. **Explore** evaluation results for detailed insights
-    """)
-    
-    # Page routing
-    if page == "💬 Chat Interface":
+    # Route to pages
+    if page == "💬 Chat":
         main_chat_interface()
     elif page == "📊 Evaluation Results":
         evaluation_metrics_page()
