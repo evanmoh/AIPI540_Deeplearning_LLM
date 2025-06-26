@@ -90,10 +90,16 @@ def load_pharmaceutical_agents():
         # Import your pharmaceutical intelligence code here
         # For now, we'll create a simple mock that you can replace
         
-        class MockAgent:
-            def __init__(self, name, response_style):
-                self.name = name
-                self.response_style = response_style
+            from pharmaceutical_intelligence import run_pharmaceutical_marketing_intelligence
+            
+            @st.cache_resource
+            def load_pharmaceutical_agents():
+                """Load and cache pharmaceutical agents"""
+                try:
+                    return run_pharmaceutical_marketing_intelligence()
+                except Exception as e:
+                    st.error(f"Error loading pharmaceutical agents: {e}")
+                    return None
             
             def answer_query(self, query):
                 if self.response_style == "naive":
