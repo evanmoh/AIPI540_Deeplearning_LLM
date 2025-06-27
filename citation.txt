@@ -1,0 +1,62 @@
+Citation
+https://chatgpt.com/share/685e7976-12e8-8006-a2f1-177960737870
+The above code was generated using ChatGPT 4.1 on 6/18/25 at 7am.
+
+https://claude.ai/share/3e92242a-e6ed-44b0-ad59-6a59d9bc4e96
+The above code was generated using Claude Sonnet 4 on 6/20/25 at 6:18pm.
+
+https://claude.ai/share/565ba161-4763-4770-95ab-a19d161af59a
+The above code was generated using Claude Sonnet 4 on 6/20/25 at 7pm.
+
+https://chatgpt.com/share/685e79cb-4998-8006-9add-dd405a030a49
+The above code was generated using ChatGPT 4.1 on 6/21/25 at 1:35pm.
+
+https://claude.ai/public/artifacts/d3c2e1ab-26f9-438a-8d47-592cbbd21d1b
+The above code was generated using Claude Sonnet 4 on 6/21/25 at 1:48pm.
+
+https://claude.ai/public/artifacts/6f7b121b-fe61-4a82-a7a3-ad409a8f333b
+The above code was generated using Claude Sonnet 4 on 6/22/25 at 5:48pm.
+
+https://claude.ai/public/artifacts/405195ed-5586-4ece-8185-3d6c1df8c314
+The above code was generated using Claude Sonnet 4 on 6/22/25 at 6:15pm.
+
+https://claude.ai/public/artifacts/492abd3f-498f-4550-b9f8-77b14cc36838
+The above code was generated using Claude Sonnet 4 on 6/23/25 at 7:41am.
+
+https://claude.ai/public/artifacts/cf035d37-24ee-4786-9936-9d6e2db11e80
+The above code was generated using Claude Sonnet 4 on 6/23/25 at 8:12am.
+
+https://claude.ai/public/artifacts/521dd454-cd7c-4040-b2cd-8face15762f0
+The above code was generated using Claude Sonnet 4 on 6/24/25 at 8:40am.
+
+https://claude.ai/public/artifacts/e745368d-a804-4a57-befc-0713886bfb8a
+The above code was generated using Claude Sonnet 4 on 6/24/25 at 9:15am.
+
+https://claude.ai/public/artifacts/9ff8a6bd-b777-4334-9d2d-57c6260d622a
+The above code was generated using Claude Sonnet 4 on 6/24/25 at 10:34am.
+
+https://claude.ai/public/artifacts/8b70017c-6d9e-440e-a1d9-c3612ad9b861
+The above code was generated using Claude Sonnet 4 on 6/24/25 at 10:36am.
+
+https://claude.ai/public/artifacts/24542be2-6760-4ae9-8169-a12ab6b6e84d
+The above code was generated using Claude Sonnet 4 on 6/25/25 at 9:10am.
+
+https://claude.ai/public/artifacts/2e177b63-8882-4221-9ee7-461bff58e4fa
+The above code was generated using Claude Sonnet 4 on 6/25/25 at 10am.
+
+https://claude.ai/public/artifacts/a0aeece6-a9e8-4b99-8d00-57e2db2a2d0d
+The above code was generated using Claude Sonnet 4 on 6/25/25 at 11am.
+
+https://claude.ai/public/artifacts/a8fdf3fe-1287-45ef-b12f-4acc648ede0d
+The above code was generated using Claude Sonnet 4 on 6/26/25 at 6:35am.
+
+https://claude.ai/share/8ced3e63-489b-4886-b3f2-5065d52a08cf
+The above code was generated using Claude Sonnet 4 on 6/26/25 at 8am.
+
+https://claude.ai/public/artifacts/d43f3368-d5aa-4696-a59a-e96cbba523d6
+The above code was generated using Claude Sonnet 4 on 6/26/25 at 9am.
+
+https://claude.ai/public/artifacts/967a5012-5c32-40c4-a823-e0231ed53aad
+The above code was generated using Claude Sonnet 4 on 6/27/25 at 6:58am.
+
+
