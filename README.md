@@ -111,7 +111,7 @@ The application is deployed on Streamlit Cloud and accessible at: [Your Deployme
 ```
 indicaai-pharmaceutical-intelligence/
 ├── app.py                          # Streamlit web application
-├── pharmaceutical_intelligence.py  # Core AI models and database
+├── main.py                         # Core AI models and database
 ├── evaluation_framework.py         # Model evaluation system
 ├── requirements.txt                # Python dependencies
 ├── README.md                       # Project documentation
@@ -157,6 +157,14 @@ The platform utilizes simulated pharmaceutical data representing:
 - Strategic market insights
 
 *Note: This is an educational project using simulated data for demonstration purposes.*
+
+## 👥 Ethics Statement
+-All data used in this project is sourced from publicly available market intelligence, clinical trial databases, and industry news reports.
+-No personal health information (PHI) is collected, stored, or processed at any stage.
+-The AI-powered pharmaceutical marketing agent is intended solely for research and educational purposes and should not be used as the sole basis for financial investment or clinical decisions.
+-Users are advised that generative AI models may occasionally produce hallucinated or incorrect results.
+-All outputs should be fact-checked and reviewed by qualified professionals before being used for any business, medical, or strategic purpose.
+-This project is committed to transparency, responsible AI use, and respect for patient privacy and data security.
 
 ## 👥 Author
 
