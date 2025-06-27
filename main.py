@@ -1,5 +1,6 @@
 # ============================================================================
 # GOOGLE COLAB SETUP CELL - Run this first
+# This code had been generated with Claude Sonnet 4 between 6/16/25-6/27/25.
 # ============================================================================
 
 # Install required packages
