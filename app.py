@@ -1,4 +1,4 @@
-#This code had been generated with Claude Sonnet 4 between 6/16/25-6/27/25.
+# Majority of the code in here had been generated with Claude Sonnet 4 between 6/16/25-6/27/25.
 
 import streamlit as st
 import sys
